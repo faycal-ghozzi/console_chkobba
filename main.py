@@ -1,4 +1,6 @@
 import random
+import os
+clear = lambda: os.system('clear')
 
 def shuffleDeck(deck: list) -> list:
     random.shuffle(deck)
@@ -33,11 +35,34 @@ def dealCards(deck: list, hand_1: list, hand_2: list, table: list) -> None:
     for _ in range(0,3):
         collectRemoveCard(deck, hand_2)
 
-    print(hand_1)
-    print('-------')
-    print(table)
-    print('-------')
-    print(hand_2)
+def collectEqualValueCard(table: list, card: str) -> dict:
+    available = -1
+    best_pick = -1
+    for i in range(0, len(table)):
+        if card[0] == table[i][0]:
+            available = i
+        if card[0] != 'd' and card[0] == table[i][0] and table[i][1] == 'd':
+            best_pick = i
+    return {'available' : available, 'best_pick' : best_pick}
+
+def collectSumOfThrownCard(table: list, card: str) -> dict:
+    pass
+
+def ThrowCollectCards(table: list, card: str, pile: list) -> None:
+    result = collectEqualValueCard(table, card)
+    available, best_pick = result['available'], result['best_pick']
+    if(available == -1 and best_pick == -1):
+        table.append(card)
+        return
+    if(best_pick != -1):
+        pile.append(table[best_pick])
+        del table[best_pick]
+        pile.append(card)
+        return
+    pile.append(table[available])
+    del table[available]
+    pile.append(card)
+    return
 
 def showCards(deck: list, hand: list):
     print('deck : ', deck)
@@ -46,16 +71,37 @@ def showCards(deck: list, hand: list):
 def game(deck):
     hand_1 = []
     hand_2 = []
+    pile_1 = []
+    pile_2 = []
     table = []
     shuffledDeck = shuffleDeck(deck)
     pickRandomCard(shuffledDeck, hand_1, table)
     dealCards(shuffledDeck, hand_1, hand_2, table)
+    # Test case for priority
+    table = ['1c', '2d', '1d', '3d']
+    hand_1 = ['1s', '3h', '4s']
+    while hand_1:
+        print(" table : ")
+        print(table)
+        print('------')
+        print("your hand : ")
+        print(hand_1)
+        card = input("select card from your hand :")
+        card_index = int(card) -1
+        card = hand_1[card_index]
+        del hand_1[card_index]
+        ThrowCollectCards(table, card, pile_1)
+        clear()
+    print('table :')
+    print(table)
+    print('pile :')
+    print(pile_1)
 
 if __name__ == '__main__':
     deck = [
-        '1c', '2c', '3c', '4c', '5c', '6c', '7c', '8c', '9c', '10c',
-        '1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', '10d',
-        '1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', '10h',
-        '1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', '10s',
+        '1c', '2c', '3c', '4c', '5c', '6c', '7c', 'Dc', 'Vc', 'Rc',
+        '1d', '2d', '3d', '4d', '5d', '6d', '7d', 'Dd', 'Vd', 'Rd',
+        '1h', '2h', '3h', '4h', '5h', '6h', '7h', 'Dh', 'Vh', 'Rh',
+        '1s', '2s', '3s', '4s', '5s', '6s', '7s', 'Ds', 'Vs', 'Rs',
         ]
     game(deck)
