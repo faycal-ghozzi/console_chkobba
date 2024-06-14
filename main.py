@@ -45,13 +45,42 @@ def collectEqualValueCard(table: list, card: str) -> dict:
             best_pick = i
     return {'available' : available, 'best_pick' : best_pick}
 
-def collectSumOfThrownCard(table: list, card: str) -> dict:
-    pass
+def collectSumOfThrownCard(table: list, card: str) -> None:
+    char_to_number = {
+        'D': 8, 'V': 9, 'R': 10
+    }
+
+    def parse_string(s):
+        first_char = s[0]
+        if first_char.isdigit():
+            return int(first_char)
+        else:
+            return char_to_number.get(first_char)
+
+    nums = [parse_string(s) for s in table]
+    card = parse_string(card)
+
+    def find_combinations(nums, target, start, path, result):
+        if target == 0:
+            result.append(path)
+            return
+        for i in range(start, len(nums)):
+            if nums[i] > target:
+                break
+            if i > start and nums[i] == nums[i - 1]:
+                continue
+            find_combinations(nums, target - nums[i], i + 1, path + [table[i]], result)
+
+    nums.sort()
+    result = []
+    find_combinations(nums, card, 0, [], result)
+    return result
 
 def ThrowCollectCards(table: list, card: str, pile: list) -> None:
     result = collectEqualValueCard(table, card)
     available, best_pick = result['available'], result['best_pick']
     if(available == -1 and best_pick == -1):
+        print(collectSumOfThrownCard(table, card))
         table.append(card)
         return
     if(best_pick != -1):
@@ -91,7 +120,6 @@ def game(deck):
         card = hand_1[card_index]
         del hand_1[card_index]
         ThrowCollectCards(table, card, pile_1)
-        clear()
     print('table :')
     print(table)
     print('pile :')
